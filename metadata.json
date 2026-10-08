@@ -1,0 +1,6 @@
+{
+  "name": "NeuroHealth Coach - Trợ Lý Phục Hồi Sinh Lý & Phản Xạ Não Bộ",
+  "description": "Ứng dụng di động trợ lý phục hồi sinh lý và huấn luyện phản xạ não bộ 12 tuần: lộ trình kỷ luật, bài tập Trì hoãn 10 phút, Kegel 3 hiệp, thang đo kích thích 1-10, Nút Cấp Cứu khẩn cấp và Bác sĩ AI Nam khoa.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NeuroHealth Coach - Trợ Lý Phục Hồi Sinh Lý & Phản Xạ Não Bộ 12 Tuần</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .breathing-pulse {
+      animation: pulse-ring 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex justify-center selection:bg-emerald-500 selection:text-white">
+
+  <!-- Mobile Viewport Frame -->
+  <div id="app" class="w-full max-w-md min-h-screen flex flex-col bg-slate-900 border-x border-slate-800 relative shadow-2xl pb-20">
+    
+    <!-- Top Header -->
+    <header class="sticky top-0 z-30 w-full backdrop-blur-md bg-slate-950/90 border-b border-slate-800 px-4 py-2.5 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 font-bold flex items-center justify-center text-sm border border-emerald-500/30">
+          NH
+        </div>
+        <div>
+          <h1 class="text-sm font-bold text-white leading-tight">NeuroHealth Coach</h1>
+          <p id="headerStreak" class="text-[11px] text-amber-400 font-semibold">🔥 1 ngày kỷ luật · 12 Tuần</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-white bg-slate-800/60" title="Chuyển chế độ Sáng / Tối">
+          <span id="themeIcon">☀️</span>
+        </button>
+        <button onclick="openPanicModal()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-md shadow-rose-600/30 animate-pulse flex items-center gap-1">
+          <span>🚨</span> CẤP CỨU
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="mainContent" class="flex-1 p-4 overflow-y-auto space-y-4">
+      <!-- Dynamic View Injected via JavaScript -->
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 max-w-md w-full z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 grid grid-cols-4 h-16 items-center px-1">
+      <button onclick="setTab('dashboard')" id="nav-dashboard" class="flex flex-col items-center justify-center text-emerald-400 py-1 font-semibold transition-colors">
+        <span class="text-base">📊</span>
+        <span class="text-[10px] mt-0.5">Tiến độ</span>
+      </button>
+      <button onclick="setTab('braingym')" id="nav-braingym" class="flex flex-col items-center justify-center text-slate-400 py-1 transition-colors">
+        <span class="text-base">🧠</span>
+        <span class="text-[10px] mt-0.5">Luyện não</span>
+      </button>
+      <button onclick="setTab('aicoach')" id="nav-aicoach" class="flex flex-col items-center justify-center text-slate-400 py-1 transition-colors">
+        <span class="text-base">🩺</span>
+        <span class="text-[10px] mt-0.5">Bác sĩ AI</span>
+      </button>
+      <button onclick="setTab('roadmap')" id="nav-roadmap" class="flex flex-col items-center justify-center text-slate-400 py-1 transition-colors">
+        <span class="text-base">🗺️</span>
+        <span class="text-[10px] mt-0.5">Lộ trình</span>
+      </button>
+    </nav>
+
+    <!-- Panic Emergency Modal -->
+    <div id="panicModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+      <div class="w-full max-w-md bg-slate-900 border border-rose-500/40 rounded-3xl p-5 shadow-2xl text-center space-y-4 max-h-[92vh] overflow-y-auto">
+        <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mx-auto text-2xl font-bold">
+          ⚠️
+        </div>
+        <h2 class="text-lg font-black text-rose-400">DỪNG LẠI! HÃY HẠ NHIỆT NÃO BỘ</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Cơn thèm chỉ là phản xạ đòi Dopamine trong <strong>7-10 phút</strong>. Bạn hoàn toàn làm chủ cơ thể!
+        </p>
+        
+        <div class="p-3.5 rounded-2xl bg-slate-800/80 text-left space-y-2.5 text-xs border border-slate-700">
+          <p class="flex items-start gap-2">
+            <span>💧</span>
+            <span><strong>1. Uống ngay 1 cốc nước thật lạnh:</strong> Kích hoạt dây thần kinh phế vị (Vagus Nerve), hạ nhiệt cơ thể tức thì.</span>
+          </p>
+          <p class="flex items-start gap-2">
+            <span>💪</span>
+            <span><strong>2. Chống đẩy 15 cái hoặc rời khỏi giường:</strong> Hút dòng máu từ vùng chậu về các nhóm cơ lớn.</span>
+          </p>
+          <p class="flex items-start gap-2">
+            <span>🌬️</span>
+            <span><strong>3. Thở 4-7-8:</strong> Hít vào 4s qua mũi, giữ hơi 7s, thở ra chậm 8s qua miệng.</span>
+          </p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800">
+          <div class="text-[10px] text-slate-400 uppercase font-semibold">Thời gian hạ nhiệt khẩn cấp</div>
+          <div class="text-4xl font-mono font-bold text-white my-1" id="panicTimer">03:00</div>
+        </div>
+
+        <button onclick="resolvePanic()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/30">
+          Tôi Đã Kiểm Soát Được Tình Hình
+        </button>
+        <button onclick="closePanicModal()" class="text-xs text-slate-400 hover:text-white">Đóng cửa sổ</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Audio synthesizer using Web Audio API
+    function playAudioTone(freq = 440, type = 'sine', dur = 0.2) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + dur);
+      } catch (e) {}
+    }
+
+    // App state loaded from LocalStorage
+    let state = {
+      currentTab: 'dashboard',
+      day: parseInt(localStorage.getItem('nh_day') || '1'),
+      streak: parseInt(localStorage.getItem('nh_streak') || '1'),
+      bestStreak: parseInt(localStorage.getItem('nh_best_streak') || '1'),
+      tasks: JSON.parse(localStorage.getItem('nh_tasks') || '{}'),
+      panicCount: parseInt(localStorage.getItem('nh_panic') || '0'),
+      isDark: localStorage.getItem('nh_theme') !== 'light',
+      gymModule: 'delay',
+      delaySec: 600,
+      delayRunning: false,
+      delayTimerId: null,
+      arousal: 7,
+      anchorStep: 1,
+      anchorCount: 0,
+      kegelSet: 1,
+      kegelRep: 1,
+      kegelState: 'relax',
+      kegelTimer: 5,
+      kegelRunning: false,
+      kegelTimerId: null,
+      chat: JSON.parse(localStorage.getItem('nh_chat') || 'null') || [
+        { sender: 'doc', text: 'Chào bạn! Tôi là Bác sĩ Minh Triết - Cố vấn chuyên khoa Nam học & Phục hồi Phản xạ Thần kinh. Mọi cuộc trò chuyện tại đây là hoàn toàn bảo mật và riêng tư. Bạn đang gặp phải băn khoăn gì?' }
+      ]
+    };
+
+    function saveState() {
+      localStorage.setItem('nh_day', state.day);
+      localStorage.setItem('nh_streak', state.streak);
+      localStorage.setItem('nh_best_streak', Math.max(state.streak, state.bestStreak));
+      localStorage.setItem('nh_tasks', JSON.stringify(state.tasks));
+      localStorage.setItem('nh_panic', state.panicCount);
+      localStorage.setItem('nh_chat', JSON.stringify(state.chat));
+      localStorage.setItem('nh_theme', state.isDark ? 'dark' : 'light');
+    }
+
+    function toggleTheme() {
+      state.isDark = !state.isDark;
+      if (state.isDark) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeIcon').innerText = '☀️';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.getElementById('themeIcon').innerText = '🌙';
+      }
+      saveState();
+    }
+
+    function setTab(tab) {
+      state.currentTab = tab;
+      ['dashboard', 'braingym', 'aicoach', 'roadmap'].forEach(t => {
+        const el = document.getElementById('nav-' + t);
+        if (el) {
+          if (t === tab) {
+            el.className = 'flex flex-col items-center justify-center text-emerald-400 py-1 font-semibold';
+          } else {
+            el.className = 'flex flex-col items-center justify-center text-slate-400 py-1';
+          }
+        }
+      });
+      playAudioTone(520, 'sine', 0.1);
+      render();
+    }
+
+    function toggleTask(taskId) {
+      state.tasks[taskId] = !state.tasks[taskId];
+      playAudioTone(600, 'triangle', 0.15);
+      saveState();
+      render();
+    }
+
+    function advanceDay() {
+      state.day = Math.min(84, state.day + 1);
+      state.streak += 1;
+      state.bestStreak = Math.max(state.bestStreak, state.streak);
+      state.tasks = {};
+      playAudioTone(880, 'sine', 0.4);
+      saveState();
+      alert('🎉 Chúc mừng bạn đã hoàn thành ngày hôm nay và bước sang Ngày ' + state.day + '!');
+      render();
+    }
+
+    // Emergency Panic Handlers
+    let panicInterval = null;
+    let panicSecs = 180;
+    function openPanicModal() {
+      document.getElementById('panicModal').classList.remove('hidden');
+      panicSecs = 180;
+      clearInterval(panicInterval);
+      playAudioTone(400, 'sawtooth', 0.3);
+      panicInterval = setInterval(() => {
+        if (panicSecs > 0) {
+          panicSecs--;
+          const m = String(Math.floor(panicSecs / 60)).padStart(2, '0');
+          const s = String(panicSecs % 60).padStart(2, '0');
+          document.getElementById('panicTimer').innerText = m + ':' + s;
+        }
+      }, 1000);
+    }
+    function closePanicModal() {
+      document.getElementById('panicModal').classList.add('hidden');
+      clearInterval(panicInterval);
+    }
+    function resolvePanic() {
+      state.panicCount += 1;
+      saveState();
+      closePanicModal();
+      playAudioTone(784, 'sine', 0.5);
+      alert('🌟 Xuất sắc! Bạn đã bảo vệ được kỷ luật và thùy trán của mình!');
+      render();
+    }
+
+    // ================= VIEWS =================
+    function renderDashboard() {
+      const week = Math.min(12, Math.ceil(state.day / 7));
+      const tasks = [
+        { id: 't1', title: 'Không xem phim khiêu dâm / Thủ dâm vô thức', desc: 'Bảo vệ thụ thể Dopamine & dập tắt phản xạ siêu kích thích' },
+        { id: 't2', title: 'Hoàn thành bài tập Trì hoãn 10 phút (Chống thèm)', desc: 'Huấn luyện thùy trán kiểm soát xung động bản năng' },
+        { id: 't3', title: 'Tập hít thở sâu giảm căng thẳng (10 phút)', desc: 'Kích hoạt hệ thần kinh phó giao cảm, hạ cortisol' },
+        { id: 't4', title: 'Hoàn thành 3 hiệp bài tập Kegel', desc: 'Gia cố cơ mu-cụt (PC) làm chủ phản xạ van xuất tinh' },
+      ];
+
+      const completed = tasks.filter(t => state.tasks[t.id]).length;
+
+      return `
+        <!-- Hero Streak Card -->
+        <div class="rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 p-5 border border-emerald-500/20 text-white shadow-xl">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Lộ trình 12 tuần</span>
+              <h2 class="text-2xl font-black">Ngày ${state.day} <span class="text-slate-400 text-sm font-normal">/ 84</span></h2>
+              <p class="text-xs text-slate-300">Tuần ${week}: Tái tạo rãnh phản xạ thần kinh</p>
+            </div>
+            <div class="bg-white/10 px-3 py-2 rounded-2xl text-center border border-white/10">
+              <span class="text-xl font-black font-mono text-amber-400 leading-none">🔥 ${state.streak}</span>
+              <div class="text-[10px] text-amber-200 mt-1">Chuỗi ngày</div>
+            </div>
+          </div>
+          
+          <div class="mt-4 pt-3 border-t border-white/10">
+            <div class="flex justify-between text-[11px] text-slate-300 mb-1">
+              <span>Tiến độ toàn khóa</span>
+              <span class="font-mono text-emerald-400 font-bold">${Math.round((state.day/84)*100)}%</span>
+            </div>
+            <div class="w-full bg-black/40 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-500" style="width: ${(state.day/84)*100}%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affirmation -->
+        <div class="p-3.5 bg-emerald-950/30 border border-emerald-800/40 rounded-2xl text-xs text-emerald-300 flex items-start gap-2.5">
+          <span class="text-base">💡</span>
+          <div>
+            <strong class="text-emerald-400">Lời nhắc thần kinh:</strong>
+            <p class="mt-0.5 italic">"Cơn thèm chỉ là cơn sóng Dopamine kéo dài 10 phút. Bạn hoàn toàn làm chủ cơ thể và vận mệnh của mình."</p>
+          </div>
+        </div>
+
+        <!-- Checklist -->
+        <div class="space-y-2.5">
+          <div class="flex justify-between items-center px-1">
+            <h3 class="text-xs font-bold uppercase text-slate-400">Checklist Nhiệm Vụ Hôm Nay</h3>
+            <span class="text-xs text-emerald-400 font-semibold">${completed}/4 hoàn thành</span>
+          </div>
+          ${tasks.map(t => {
+            const done = !!state.tasks[t.id];
+            return `
+              <div onclick="toggleTask('${t.id}')" class="p-3.5 rounded-2xl border cursor-pointer flex items-start gap-3 transition-all ${done ? 'bg-emerald-950/20 border-emerald-800/80 text-emerald-200' : 'bg-slate-800/40 border-slate-700/60 text-white hover:border-slate-600'}">
+                <span class="text-lg">${done ? '✅' : '⚪'}</span>
+                <div class="flex-1">
+                  <div class="text-xs font-bold ${done ? 'line-through text-slate-400' : ''}">${t.title}</div>
+                  <div class="text-[11px] text-slate-400 mt-0.5">${t.desc}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- Advance Day Button -->
+        <button onclick="advanceDay()" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-600/25 active:scale-98 transition-transform mt-2">
+          ${completed === 4 ? '🎉 Đã Xong 4 Nhiệm Vụ! Sang Ngày Mới' : 'Hoàn Thành Ngày Hôm Nay & Tăng Chuỗi'}
+        </button>
+      `;
+    }
+
+    function renderBrainGym() {
+      return `
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-black text-white">Phòng Luyện Phản Xạ Não Bộ</h2>
+            <p class="text-xs text-slate-400">Rèn luyện thùy trán, thang đo kích thích và cơ sàn chậu</p>
+          </div>
+          
+          <!-- Module 1: 10 Min Urge Delay -->
+          <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-400 text-base">⏳</span>
+              <h3 class="text-sm font-bold text-emerald-400">1. Bài Tập Trì Hoãn 10 Phút (Urge Surfing)</h3>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Khi xung động dâng lên, ngồi thẳng lưng, nhắm mắt và thở sâu trong 10 phút. Đỉnh sóng Dopamine sẽ tự rút xuống.
+            </p>
+            <div class="p-4 rounded-xl bg-slate-950 text-center border border-slate-800">
+              <div class="text-4xl font-mono font-bold text-white" id="delayTimerDisplay">
+                ${String(Math.floor(state.delaySec / 60)).padStart(2, '0')}:${String(state.delaySec % 60).padStart(2, '0')}
+              </div>
+              <div class="flex justify-center gap-2 mt-3">
+                <button onclick="toggleDelayTimer()" id="btnDelay" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md">
+                  ${state.delayRunning ? 'Tạm Dừng' : 'Bắt Đầu 10 Phút'}
+                </button>
+                <button onclick="resetDelayTimer()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium rounded-xl">
+                  Đặt lại
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Module 2: Arousal Scale 1-10 -->
+          <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="text-indigo-400 text-base">🎯</span>
+              <h3 class="text-sm font-bold text-indigo-400">2. Thang Đo Kích Thích (Quy Tắc Ngưỡng 7)</h3>
+            </div>
+            <p class="text-xs text-slate-300">Nhận diện mức 7 là ranh giới vàng: DỪNG kích thích ngay 30s để không vượt ngưỡng.</p>
+            
+            <input type="range" min="1" max="10" value="${state.arousal}" oninput="changeArousal(this.value)" class="w-full accent-emerald-500 h-2 bg-slate-700 rounded-lg">
+            
+            <div class="p-3.5 rounded-2xl text-xs ${state.arousal == 7 ? 'bg-amber-500/20 border border-amber-500/80 text-amber-200 animate-pulse' : 'bg-slate-950 border border-slate-800 text-slate-200'}">
+              <div class="font-bold text-sm mb-1">MỨC ${state.arousal} / 10</div>
+              ${state.arousal <= 3 ? 'Giai đoạn 1-3: Thư giãn hoàn toàn, hệ phó giao cảm làm chủ.' :
+                state.arousal <= 6 ? 'Giai đoạn 4-6: Cương cứng tốt, hưng phấn tăng dần có kiểm soát.' :
+                state.arousal == 7 ? '⚠️ MỨC 7: ĐIỂM DỪNG VÀNG! Dừng ngay kích thích 30s + Thở bụng sâu để hạ hưng phấn về 5.' :
+                'Giai đoạn 8-10: Quá điểm không thể quay đầu (Inevitability), phóng tinh không thể hoãn.'}
+            </div>
+          </div>
+
+          <!-- Module 3: Anchoring Reflex -->
+          <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2.5">
+            <div class="flex items-center gap-2">
+              <span class="text-teal-400 text-base">⚓</span>
+              <h3 class="text-sm font-bold text-teal-400">3. Neo Tâm Lý Tự Tin (Neuro-Anchoring)</h3>
+            </div>
+            <p class="text-xs text-slate-300">
+              1. Nhớ lại thời khắc kiêu hãnh nhất đời bạn.<br>
+              2. Cảm nhận năng lượng dâng trào trong lồng ngực.<br>
+              3. Bấm chặt ngón cái + ngón trỏ tay trái lại trong 5 giây.<br>
+              4. Nhủ thầm: <em>"Tôi làm chủ năng lượng của chính mình"</em>.
+            </p>
+            <button onclick="state.anchorCount++; playAudioTone(660); alert('Đã hoàn thành 1 lượt neo tâm lý (+1)!'); render();" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold rounded-xl">
+              Thực hành Neo Ngay (Đã thực hiện: ${state.anchorCount} lần)
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleDelayTimer() {
+      if (state.delayRunning) {
+        clearInterval(state.delayTimerId);
+        state.delayRunning = false;
+        render();
+      } else {
+        state.delayRunning = true;
+        render();
+        state.delayTimerId = setInterval(() => {
+          if (state.delaySec > 0) {
+            state.delaySec--;
+            const m = String(Math.floor(state.delaySec / 60)).padStart(2, '0');
+            const s = String(state.delaySec % 60).padStart(2, '0');
+            const el = document.getElementById('delayTimerDisplay');
+            if (el) el.innerText = m + ':' + s;
+          } else {
+            clearInterval(state.delayTimerId);
+            state.delayRunning = false;
+            playAudioTone(880, 'sine', 0.5);
+            alert('🎉 Xuất sắc! Bạn đã vượt qua 10 phút trì hoãn thành công!');
+            render();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetDelayTimer() {
+      clearInterval(state.delayTimerId);
+      state.delayRunning = false;
+      state.delaySec = 600;
+      render();
+    }
+
+    function changeArousal(val) {
+      state.arousal = parseInt(val);
+      playAudioTone(state.arousal >= 7 ? 660 : 440);
+      render();
+    }
+
+    function renderAICoach() {
+      return `
+        <div class="space-y-3">
+          <div class="p-3.5 bg-slate-800/80 border border-slate-700/60 rounded-2xl flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm border border-emerald-500/30">
+              BS
+            </div>
+            <div>
+              <h3 class="text-xs font-bold text-white">BS. Minh Triết (AI Coach)</h3>
+              <p class="text-[11px] text-emerald-400">Cố vấn Phục hồi Nam học & Thần kinh</p>
+            </div>
+          </div>
+
+          <!-- Chat messages box -->
+          <div id="chatFeed" class="space-y-2.5 max-h-[50vh] overflow-y-auto p-1 pr-2">
+            ${state.chat.map(m => `
+              <div class="p-3 rounded-2xl text-xs leading-relaxed ${m.sender === 'doc' ? 'bg-slate-800/90 text-slate-200 border border-slate-700/60' : 'bg-emerald-600 text-white ml-auto max-w-[85%] rounded-tr-none shadow-sm'}">
+                ${m.text}
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Quick action prompts -->
+          <div class="flex gap-1.5 overflow-x-auto py-1 scrollbar-none text-xs">
+            <button onclick="askCoach('Tôi đang rất thèm thủ dâm, làm sao vượt qua?')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl whitespace-nowrap text-slate-300 border border-slate-700">🔥 Đang rất thèm</button>
+            <button onclick="askCoach('Hướng dẫn tôi bài tập trì hoãn não bộ')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl whitespace-nowrap text-slate-300 border border-slate-700">⏳ Bài tập trì hoãn</button>
+            <button onclick="askCoach('Thang đo kích thích mức 7 là gì?')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl whitespace-nowrap text-slate-300 border border-slate-700">🎯 Mức 7 là gì?</button>
+            <button onclick="askCoach('Tôi lo lắng trước khi quan hệ')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl whitespace-nowrap text-slate-300 border border-slate-700">😰 Lo âu hiệu suất</button>
+          </div>
+
+          <!-- Input bar -->
+          <div class="flex gap-2 pt-1">
+            <input id="chatInput" type="text" placeholder="Hỏi bác sĩ bất cứ băn khoăn nào..." class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <button onclick="sendUserChat()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md">Gửi</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function askCoach(q) {
+      document.getElementById('chatInput').value = q;
+      sendUserChat();
+    }
+
+    function sendUserChat() {
+      const input = document.getElementById('chatInput');
+      const text = input ? input.value.trim() : '';
+      if (!text) return;
+      state.chat.push({ sender: 'user', text });
+      input.value = '';
+      playAudioTone(520);
+      render();
+
+      setTimeout(() => {
+        let reply = 'Bác sĩ ghi nhận câu hỏi của bạn. Về mặt thần kinh và sinh lý, việc phục hồi đòi hỏi bạn kiên trì duy trì 4 nhiệm vụ kỷ luật mỗi ngày. Đừng ngần ngại trao đổi thêm chi tiết nhé!';
+        const lower = text.toLowerCase();
+        if (lower.includes('thèm') || lower.includes('quay tay') || lower.includes('xem phim')) {
+          reply = 'Chào bạn! Cơn thèm lúc này là do não đói Dopamine. Hãy bấm nút [CẤP CỨU] ngay, uống 1 cốc nước lạnh lớn và chống đẩy 15 cái để hút máu dồn về cơ bắp nhé!';
+        } else if (lower.includes('trì hoãn') || lower.includes('10 phút')) {
+          reply = 'Bài tập Trì hoãn 10 phút (Urge Surfing): Hãy ngồi quan sát cảm giác cơ thể mà không hành động. Cơn sóng xung động chỉ đạt đỉnh 7-10 phút rồi sẽ tự hạ nhiệt.';
+        } else if (lower.includes('mức 7') || lower.includes('thang đo')) {
+          reply = 'Mức 7 trên thang đo 1-10 là NGƯỠNG ĐIỂM DỪNG VÀNG! Khi nhận thấy hơi thở dồn dập và cơ đáy chậu bắt đầu co rút, bạn BẮT BUỘC phải dừng kích thích 30s và thở bụng sâu.';
+        } else if (lower.includes('lo lắng') || lower.includes('quan hệ') || lower.includes('sợ')) {
+          reply = 'Lo âu hiệu suất tiết ra Adrenaline làm co thắt mạch máu và kích hoạt phản xạ xuất sớm. Hãy chuyển từ tâm lý "trình diễn" sang "thưởng thức sự kết nối", và áp dụng nhịp thở 4-7-8.';
+        }
+        state.chat.push({ sender: 'doc', text: reply });
+        playAudioTone(660);
+        saveState();
+        render();
+        const feed = document.getElementById('chatFeed');
+        if (feed) feed.scrollTop = feed.scrollHeight;
+      }, 600);
+    }
+
+    function renderRoadmap() {
+      return `
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-black text-white">Lộ Trình Phục Hồi 12 Tuần</h2>
+            <p class="text-xs text-slate-400">4 Giai đoạn tái cấu trúc thần kinh và thể chất</p>
+          </div>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
+              <strong class="text-emerald-400">Tuần 1 - 2:</strong> Giải độc Dopamine & Cắt đứt rãnh thần kinh cũ
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
+              <strong class="text-indigo-400">Tuần 3 - 4:</strong> Tái cân bằng thụ thể & Tăng nhạy cảm tự nhiên
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
+              <strong class="text-teal-400">Tuần 5 - 8:</strong> Huấn luyện cơ đáy chậu (Kegel) & Nhịp dừng số 7
+            </div>
+            <div class="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700">
+              <strong class="text-purple-400">Tuần 9 - 12:</strong> Làm chủ phản xạ não bộ, Tự tin & Phong độ vững bền
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/60 text-center space-y-2">
+            <div class="text-xs text-slate-400">Quản lý dữ liệu & Tiến trình</div>
+            <button onclick="if(confirm('Đặt lại toàn bộ lộ trình về Ngày 1?')) { state.day=1; state.streak=1; state.tasks={}; saveState(); render(); }" class="px-4 py-2 bg-rose-950 text-rose-300 text-xs rounded-xl border border-rose-800">
+              Đặt lại tiến trình về Ngày 1
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function render() {
+      const el = document.getElementById('headerStreak');
+      if (el) el.innerText = '🔥 ' + state.streak + ' ngày kỷ luật · 12 Tuần';
+      const container = document.getElementById('mainContent');
+      if (!container) return;
+
+      if (state.currentTab === 'dashboard') {
+        container.innerHTML = renderDashboard();
+      } else if (state.currentTab === 'braingym') {
+        container.innerHTML = renderBrainGym();
+      } else if (state.currentTab === 'aicoach') {
+        container.innerHTML = renderAICoach();
+      } else if (state.currentTab === 'roadmap') {
+        container.innerHTML = renderRoadmap();
+      }
+    }
+
+    // Initial boot
+    render();
+  </script>
+</body>
+</html>
